@@ -8,17 +8,33 @@ module.exports = {
 		lineNumbers: true,
 		externalLinks: { target: "_blank", rel: "noopener noreferrer" },
 	},
+	configureWebpack: {
+		resolve: {
+			alias: {
+				"@alias": "docs/.vuepress/public",
+			},
+		},
+	},
 	themeConfig: {
 		sidebar: "auto",
 		nav: [
 			{ text: "主页", link: "/" },
 			{ text: "CSS 类型", link: "/CSS/" },
 			{ text: "网络与浏览器", link: "/网络与浏览器/" },
+
 			{
 				text: "js/ts",
 				items: [
 					{ text: "js", link: "/language/js.md" },
 					{ text: "ts", link: "/language/ts.md" },
+				],
+			},
+			{ text: "算法", link: "/algorithm/" },
+			{
+				text: "框架",
+				items: [
+					{ text: "vue", link: "/frame/vue.md" },
+					{ text: "react", link: "/frame/react.md" },
 				],
 			},
 		],

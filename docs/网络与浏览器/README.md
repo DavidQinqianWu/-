@@ -6,26 +6,29 @@
 
 ## 网络
 
-```js
-let name = "haha";
-function action {
-    name = 'woqu'
-}
-// 由此我们可以知道
-```
+### http 1.1 / http 2.0/ webSocket
+
+- webSocket
 
 ## 浏览器
 
-### cookie, session
+### cookie, session, webStorage(localStorage, sessionStorage)
 
-- Cookie：
+- Cookie：一种网页存储技术, 与 webStorage 想对应
 
   1. cookie 数据始终在同源的 http 请求中携带, 而 session 和 localStorage 则不会
-  2. cookie 是有生命期的, 在生命期内, 即使关闭浏览器也有效,不会丢失.
-  3. 如果不设置声明生命期, 那么关闭窗口就没有了
-  4. 所有同源窗口共享
-  5. 来源于服务器端, 以文本的形式保存在客户端, 可以与服务器交互, 不能超过 4kb
-  6. cookie 有路径的概念, 不同路径下的有不同的 cookie, 因为你不能把百度的 cookie 给发送给 google
+  2. cookie 是有生命期的, 在生命期内, 即使关闭浏览器也有效,不会丢失,若没有设置生命期, 则关闭窗口 cookie 就消失了, 里面的东西也就没有了.
+  3. 所有同源窗口共享 cookie 存储的 token 信息
+  4. 来源于服务器端, 以文本的形式保存在客户端, 可以与服务器交互, 不能存超过 4kb 的信息
+  5. cookie 有路径区分概念, 不同的路径, cookie 都是不一样的, cookie 里面记录的东西也就不一样
+
+```js
+//  用 cookie 给记录下来
+document.cookie = "age = 18";
+// 这样我们就能把一个 name 为 username, value 为 XX 的值给记录下来,
+```
+
+![cookie](./img/cookie.png)
 
 - session:
 
@@ -70,3 +73,5 @@ function action {
   2. 不要用 Local Storage 来存大量数据，它的读写效率很低下，因为它需要序列化/反序列化, 可能还没有网络请求来的快；
   3. 大小限制为 5M
      :::
+
+### 浏览器跨域问题
