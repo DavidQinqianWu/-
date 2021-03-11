@@ -20,7 +20,13 @@ module.exports = {
 		nav: [
 			{ text: "主页", link: "/" },
 			{ text: "CSS 类型", link: "/CSS/" },
-			{ text: "网络与浏览器", link: "/网络与浏览器/" },
+			{
+				text: "网络与浏览器",
+				items: [
+					{ text: "网络", link: "/网络/" },
+					{ text: "浏览器", link: "/浏览器/" },
+				],
+			},
 
 			{
 				text: "js/ts",

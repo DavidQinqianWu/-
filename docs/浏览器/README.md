@@ -1,18 +1,6 @@
-# 网络与浏览器
+# 浏览器
 
-::: tip
-前端而言, 网络往往伴随着浏览器一起说出, 因此我决定把网络和浏览器放到一起去说, 从而串成一个体系,方便大家理解
-:::
-
-## 网络
-
-### http 1.1 / http 2.0/ webSocket
-
-- webSocket
-
-## 浏览器
-
-### cookie, session, webStorage(localStorage, sessionStorage)
+## cookie, session, webStorage(localStorage, sessionStorage)
 
 - Cookie：一种网页存储技术, 与 webStorage 想对应
 
@@ -44,10 +32,9 @@ document.cookie = "age = 18";
   例子: www.baidu.com/?sessionId=XNEIG123
   :::
 
-### localStorage 和 sessionStorage 组成的 WebStorage
-
 ::: tip
-`WebStorage = localStorage + sessionStorage` 组成, 是针对 cookie 的劣势而在 HTML5 中做的优化
+`WebStorage = localStorage + sessionStorage` 组成, 是针对 cookie 的劣势而在 HTML5 中做的优化,
+现在有很多的浏览器主要是把我们的 `sessionId` 不在存入 cookie 中,而是存入到 webStorage 当中
 :::
 
 - localStorage:
@@ -74,4 +61,32 @@ document.cookie = "age = 18";
   3. 大小限制为 5M
      :::
 
-### 浏览器跨域问题
+## DNS 解析
+
+a）首先会搜索浏览器自身的 DNS 缓存（缓存时间比较短，大概只有 1 分钟，且只能容纳 1000 条缓存）
+
+b）如果浏览器自身的缓存里面没有找到，那么浏览器会搜索系统自身的 DNS 缓存
+
+c）如果还没有找到，那么尝试从 hosts 文件里面去找
+
+d）在前面三个过程都没获取到的情况下，就递归地去域名服务器去查找，具体过程如下
+
+![dns域名解析](./img/5rxqugj8dh.png)
+
+## 浏览器跨域问题
+
+## 浏览器工作原理
+
+1. 拿到请求的 html 文件
+2. 解析 html, 同时如果有引用, 就那么就去下载我们的引用(js 文件, css 文件)
+3. 生成 html DOM 树, 生成 CSS 渲染树
+4. 结合 两个树生成一个 html 树
+5. 计算位置和尺寸(重绘)
+6. 渲染呈现界面 (重排)
+
+![浏览器工作流程](./img/exploer.png)
+
+## 重绘与重排
+
+1. 先发重排, 在发生重绘
+2.
