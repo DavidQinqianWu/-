@@ -64,6 +64,62 @@
 
 flex 布局
 
-
 ## 盒模型
 
+## 业务实现部分
+
+### 至少两种方法实现一个上下左右居中
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+
+	<style>
+		.father1 {
+			width: 500px;
+			height: 500px;
+			background-color: red;
+		}
+		.son1 {
+			width: 300px;
+			height: 300px;
+			background-color: blue;
+			position: relative;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+		}
+
+		.father2 {
+			margin-top: 50px;
+			width: 500px;
+			height: 500px;
+			background-color: yellow;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.son2 {
+			width: 300px;
+			height: 300px;
+			background-color: blue;
+		}
+	</style>
+	<body>
+		<div class="father1">
+			<div class="son1"></div>
+		</div>
+
+		<div class="father2">
+			<div class="son2"></div>
+		</div>
+	</body>
+</html>
+```
