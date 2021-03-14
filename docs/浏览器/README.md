@@ -6,7 +6,7 @@
 
   1. cookie 数据始终在同源的 http 请求中携带, 而 session 和 localStorage 则不会
   2. cookie 是有生命期的, 在生命期内, 即使关闭浏览器也有效,不会丢失,若没有设置生命期, 则关闭窗口 cookie 就消失了, 里面的东西也就没有了.
-  3. 所有同源窗口共享 cookie 存储的 token 信息
+  3. 所有**同源窗口**共享 cookie 存储的 token 信息
   4. 来源于服务器端, 以文本的形式保存在客户端, 可以与服务器交互, 不能存超过 4kb 的信息.
      在请求报文中, set-cookie 字段, 之后 客户端请求都会在 http 协议的头文件中设置 cookie 字段
   5. cookie 有路径区分概念, 不同的路径, cookie 都是不一样的, cookie 里面记录的东西也就不一样
@@ -28,15 +28,15 @@ document.cookie = "age = 18";
   ::: tip
   当我们登录的时候, 服务器会检查我们的请求中是否有 sessionId(客户端以 cookie 形式保存), 如果在服务器端中的 session 列表中没有,那么就会让我们 输入账号密码, 如果正确给客户端一个 sessionId, 同时服务器会记录下这个 sessionId 在自己的 session 中. 而此时客户端会以次 sessionId 以 cookie 的形式记录下来. 下次登录的时候, 直接请求带上这个 sessionId, 这样客户端检查 sessionId 是在自己的 session 中的,然后就不需要让客户端输入账号密码了, 因为之前已经做过校验了, 直接返回该 sessionId 对应的 session 对象
   :::
+
   ::: warning
   如果客户端不支持使用 cookie 的话, 那么我们就需要在 url 请求中用 url + sessionId (url 拼接的形式)来请求了, 相当于把参数加到 url 后面
   例子: www.baidu.com/?sessionId=XNEIG123
   :::
 
-::: tip
-`WebStorage = localStorage + sessionStorage` 组成, 是针对 cookie 的劣势而在 HTML5 中做的优化,
-现在有很多的浏览器主要是把我们的 `sessionId` 不在存入 cookie 中,而是存入到 webStorage 当中
-:::
+  ::: tip
+  `WebStorage = localStorage + sessionStorage` 组成, 是针对 cookie 的劣势而在 HTML5 中做的优化,现在有很多的浏览器主要是把我们的 `sessionId` 不在存入 cookie 中,而是存入到 webStorage 当中
+  :::
 
 - localStorage:
 
@@ -75,6 +75,87 @@ d）在前面三个过程都没获取到的情况下，就递归地去域名服�
 ![dns域名解析](./img/5rxqugj8dh.png)
 
 ## 浏览器跨域问题
+
+### 什么是同源:
+
+浏览器自带的同源策略: 协议+host+(域名,ip)+端口. 只要满足这个, 就是同源
+
+### 为什么会有跨域问题:
+
+1. 发生在浏览器, 浏览器的一个防御措施
+2. 产生原因是: 就是因为我们要在两个不同源的地方去请求数据, 例如在百度当前页面去请求 google, 这个时候浏览器会判断我们是跨域行为,浏览器会禁止当前的百度请求 google 行为
+
+### 跨域问题描述和解决方案:
+
+#### 1. `CROS` 方式
+
+> 服务器设置通过响应头文件添加字段
+
+1. 当 A 页面发送请求到 B 页面的网站的时候,浏览器先问下 B 页面的网站是否允许请求跨域, 在百度页面上有一个发送 ajax 请求, 访问 google. 浏览器会先询问 google 上的服务器是否允许从百度页面上发来的 ajax 请求. 这个时候浏览器会发送 **option** 请求, 去询问 google 服务器, 如果 google 发送的响应报文中 有
+   `Access-Control-Allow-Origin`中包含百度的这个域名, 这样浏览器就会发送 Get 请求. 注意这个 是第二次才发送的, 真正的请求文件. 如果 google 不允许, 则这第二次的请求就不会发送. 同时浏览告诉你, 在百度这个页面访问 google 的请求跨域了. 不好的就是, 每一次我们发送 get 请求, 浏览器都会去询问 google 是否支持跨域, 这样相当于每次一 Get 请求 = 发送两个请求(一个是询问请求, 一个是真的 Get 请求)
+
+   :::tip
+   `Access-Control-Allow-Origin`如果设置了具体的域名, 那么就**只能设置一个**(不好的地放),如果需要设置多个 只能用通配符 \*, 如果用了\* 就能不能携带 cookie(浏览器为了安全设置)
+   :::
+
+2. 还有一种是 `Access-Control-Max-Age`, 这种是在第一次发送询问请求之后的多少 s 之内, 都可以不用再次询问了,直接可以发送普通的请求, 这样就免掉了每次发请求都要发询问, 大大增加沟通效率
+
+3. `Access-Control-Allow-Method`: 允许跨域的方法,例如允许 Get
+4. `Access-Control-Allow-Header`: 允许哪些请求头才能跨域
+
+#### 2. proxy 方式(前端利用 node 中间件代理, 或者后端用 nginx)
+
+> 网页发送请求到我们的同源服务器代理, 由代理服务器替代我们去访问别的服务器.
+
+1. 例如我们在百度页面发送 ajax 请求到 google, 我们可以去访问百度服务器, 百度服务器可以设置一个代理, 拦截我们要取访问 google 的这个 ajax 请求, 然后由百度服务器去访问 google 服务器, 因为服务器和服务器之间没有跨域这个问题. 所以当百度服务器替我们去拿数据,在返给客户端展示
+
+2. 正向代理: 类似于 VPN, 我们登录上我们的 VPN 之后, 我们输入 google, 可以明确的告诉浏览器我就要去 google 访问, 那么我们会走一个代理服务器, 但是我们不知道是哪一个代理服务器帮我们翻墙, 我们的最终目的地是受客户端控制的,
+
+3. 反向代理: 我明确去访问代理服务器,代理服务器自己决定去哪里访问, 客户端无法控制, 最终目的地客户端无法控制, 通常反向代理域 都会有 api 字段在 url 当中
+   :::tip
+
+4. vue 中用的就是 反向代理, 用 node 起了一个代理服务器,帮我们去访问
+
+5. webpack 也是这样的
+   ![webpack代理处理跨域问题](./img/webpack_proxy.png)
+
+   :::
+
+#### 3. Jsonp 方式
+
+> html 中有一些天然支持跨域的标签, 我们就可以利用这个技术, 重点理解原理,和实现方法. 现在不经常使用了
+
+1. 首先我们在前端 A 页面声明一个函数 `function A(dataFromPageB)`
+2. 然后我们在 A 页面中利用 script 标签这个天然支持跨域请求, 通过 src 去请求 pageB, 通常会把这个函数拼接到 url 请求当中
+3. pageB 页面只需要在返回的请求中 返回**字符串** `A(dataWannaCross)`, 当 pageA 拿到这个请求的文件的时候, 会自动执行 `function A`
+4. 因为 script 标签只支持 get, 不支持 post, 所以 JSONp 也仅仅支持 get 请求(这个是不好的地方)
+5. 安全性会降低, 因为如果服务器被黑了,返回的是木马程序, 那么我们前端也是会执行
+6. 其他类似标签: `img`, `iframe`, `link`, 这些都不存在跨域请求的限制
+7. jsonp 需要有服务端的支持
+
+   ![jsonp原理](./img/jsonp.png)
+
+**总结**: JSONp 相当于是 PageB 通过服务器返回函数名字( functionA(参数) ) 帮我们自动激活了 PageA 里面的我们命名的方法
+
+#### 4. postMessage 方式 + iframe (不常用)
+
+1. 利用 iframe, 在页面中嵌入一个隐藏的 iframe,这个 iframe src 指向我们要请求的地址的 html
+2. 利用 postMessage 与 iframe src 执行的网页进行通信
+3. iframe 会阻塞加载
+
+#### 5. webSocket 也能支持跨域请求数据
+
+#### 6. document.domain + iframe
+
+::: warning
+该方法只能实现同一个主域, 不同子域的请求
+:::
+
+#### 7. window.name + iframe
+
+1. A 页面嵌入 iframe, 该 iframe 去访问 B 的 window.name(我们可以让 window.name 可以赋值我们需要的数据)
+2. 因为访问不同源的 window.name 浏览器会去禁止, 那么我只需要在 A 页面拿到 B 返回的 window.name 之前, 让 A 页面的 iframe src 指向一个同源的文件(proxy.html)就可以避免掉
+   ![window.name + iframe](./img/window.name.png)
 
 ## 浏览器工作原理
 
@@ -145,3 +226,28 @@ d）在前面三个过程都没获取到的情况下，就递归地去域名服�
 - 可以在服务器端(node)使用, 也可以在客户端使用
 - 自动转换 JSON 数据
 - 支持拦截请求
+
+## 多页面应用中的通信
+
+### 1. 使用 `localStorage`
+
+> 1. 在一个标签页里面使用 localStorage.setItem(name, val)添加,修改内容
+> 2. 另一个页面去监听 storage 时间, 可以得到 localStorage 存储的值, 实现不同标签页面之间的通信 `window.addEventListener('storage', function)`
+> 3. 必须得是在同源,如果想要不同域名之下, 需要在 A 页面嵌入 B 页面(另一个域名), 来获取
+
+### 2. 使用 `cookie`
+
+> 1. A 页面存储信息到 cookie 中, B 页面轮询查看 A 页面中的 cookie 是否有存储更新
+> 2. A 页面 `document.cookie = 'name=' + value`
+> 3. B 页面每过一段时间去轮询 document.cookie
+>    不一个域名下的无法共享
+
+### 3. 使用 `webSocket`
+
+> 1. 全双工, 建立 webSocket 连接之后, 服务器可以主动发消息给客户端
+> 2. H5 新特性
+
+### 4. 使用 `share worker`
+
+> 1. 引入 worker.js
+> 2. 可以实现多标签, iframe 共同使用. sharedWorker 可以在是被多个 window 共同使用,但是必须保证这些标签页是同源的(相同的协议, 主机和端口)
