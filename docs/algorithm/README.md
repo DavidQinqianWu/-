@@ -63,8 +63,12 @@ selectSort([2, 5, 4, 3, 8, 6, 4]);
 
    > void remove(Node* list, Node *pNodeToBeDeleted)
 
-## 数组
+### 数组
 
 1. 数组中按照下表去随机访问的时间复杂度是 `O(1)`,
 
 2. 添加删除都是 `O(n)`
+
+## 非常规算法
+
+### 字符串 KMP 算法
