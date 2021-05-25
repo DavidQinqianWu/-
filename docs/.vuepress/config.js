@@ -27,7 +27,6 @@ module.exports = {
           { text: '浏览器', link: '/浏览器/' },
         ],
       },
-
       {
         text: 'js/ts',
         items: [
@@ -46,6 +45,14 @@ module.exports = {
       {
         text: '设计模式',
         link: '/设计模式/',
+      },
+      {
+        text: '工作积累',
+        link: '/工作积累/',
+      },
+      {
+        text: '源码学习',
+        items: [{ text: 'vue3', link: '/源码学习/vue3.md' }],
       },
     ],
   },
