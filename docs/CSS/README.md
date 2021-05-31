@@ -144,3 +144,9 @@ function generateCubicBezier(v, g, t) {
   ];
 }
 ```
+
+## H5 移动端
+
+### 适配刘海屏
+
+> 在 H5 中因为刘海屏的缘故, 在 ios 端, 会发生页面整体(左移或者右移的情况, 在手机横着放的时候) 这个时候我们需要在 Html5 中加入 meta 标签中加入 `viewport-fit=cover`, 这样就能自适应我们的刘海屏
