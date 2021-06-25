@@ -365,3 +365,31 @@ export function render(_ctx, _cache, $props, $setup, $data, $options) {
 ```
 
 > 在每一份 template 被解析的时候, 该 template 都会生成一个 名叫 block 的数组, 在通过对 template 里面的 dom 解析成 object 的过程中, 如果对应的 dom=>obj 都会有一个 patch Flag, 而 patch flag 里面如果是>=1 的数据, 会被添加到该 template 对应生成的 block 数组中. 因此无论你的 template 里面嵌套有多深, 在 block 数组中, 他们都是 flat 的,因此大大提高 vue 的查找效率, 只需要在第一次的时候 加入 block 数组中.然后如果我们的节点发生变化, vue 就不需要去遍历到深层的那些响应式节点, 只需要去查找 block 数组里面的就行了, 因为 block 存的就是该 template 里面所有响应式的 DOM=>Obj
+
+## 4. 对外 API 解析
+
+### 4.1 `getCurrentInstance()`
+
+首先是到底什么时候才能访问通过 getCurrentInstance()  当前实例：
+
+只要在 setup() 内部调用的任何方法，都能获取到当前实例，无论函数调用栈有多深
+但只能在同步代码中才能访问，其它的诸如 setTimeout、 DOM 事件 、 Promise 这类异步代码均无法访问
+无法访问的原因是：
+
+Composition API 会在调用组件的 setup() 前，先拿一个变量存放当前实例，以供调用 getCurrentInstance() 时返回，源码：mixin.ts#L95 和 instance.ts#L116
+执行完 setup() 以后，会把用于存放当前实例的变量值恢复到以前的模样（也就是 null ），源码：instance.ts#L126
+所以，当 Composition API 内部执行到我们组件的 setup() 时，所有的同步代码都能访问到当前实例，但那些异步代码再去访问时，它已经恢复成 null  了。
+原文: <https://4ark.me/post/87ba8d8b.html>
+
+----------------- google translate ----------------------
+
+when will the access be passed getCurrentInstance() Current instance:
+
+As long as in setup() Any method called internally can obtain the current instance, no matter how deep the function call stack is.
+However, it can only be accessed in the synchronization code. For examplesetTimeout DOM 事件 Promise This type of asynchronous code cannot be accessed
+The reason why the access is unavailable is:
+
+The Composition API calls setup() Before, take a variable to store the current instance for calling getCurrentInstance() When returned, source code: mixin.ts#L95 And instance.ts#L116
+Executed setup() Later, the variable value used to store the current instance will be restored to its previous appearance (that is null), source code: instance.ts#L126
+Therefore, when the Composition API is internally executed to setup() When, all the synchronous code can access the current instance, but when the asynchronous code is accessed again, it has been restored null Yes.
+source post: <https://4ark.me/post/87ba8d8b.html>
