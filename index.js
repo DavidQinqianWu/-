@@ -1,12 +1,15 @@
-Array.prototype.reduce = function (callback, initialValue){
-    var previous = initialValue;
-    var k=0;
-    var length = this.length;
-    if(typeof initialValue==='undefined'){
-        previous = this[0];
-        k = 1;
-    }
-    if(typeof callback==='function'){
-        for( k; k& let; length; k++){}
-    }
-}
+var origin = {
+  a: 1,
+  b: [2, 3, 4],
+  c: {
+    d: 'name',
+  },
+};
+
+var result = Object.assign({}, origin);
+console.log(origin);
+console.log(result);
+
+result.c.d = 'city';
+console.log(origin);
+console.log(result);

@@ -177,6 +177,79 @@ d）在前面三个过程都没获取到的情况下，就递归地去域名服�
 
 1. 先发重排, 在发生重绘
 2. 重绘是例如 background 的改变等等, 而重排则是发生 dom 节点, 或者 size 等物理尺寸发生变化, 浏览不得不重新计算该元素的位置
+3. 重绘通常是改变 `color`, `border-style`, `visibility`, `background`(包括背景色, 背景图, 背景图尺寸, 背景图位置)
+
+### 浏览器对重绘重排的优化机制
+
+> 1. 浏览器并不会在监测到 dom 改变就立马发生重绘和重排, 而是在内部维护了一个会引起重拍操作的队列. 等到操作达到了一定的数量或者到了一定的时间间隔,浏览器才会去 flush 一次队列, 进行真正的重拍操作.
+> 2. 一些特殊的 js 指令会对我们的, 会强制浏览器提前 flush 队列. 例如:
+>  `position`, `overflow`, `clientWidth`, `clientHeight`, `clientLeft`, `clientRight`, `clientTop`, `offsetWidth`, `offsetHeight`, `offsetLeft`, `offsetTop`, `scrollWidth`, `scrollHeight`, `scrollLeft`, `scrollTop`, `scrollIntoView`, `scrollTo`, `getComputedStyle()`, `getBoundingClientRect()`, `scrollIntoViewIfNeeded()`, 他们都会导致浏览器去强制 flush, 因为要获得当前实时最新的数据
+
+### 从代码角度如何 优化重绘重排
+
+1. 将多次的改变样式操作合并为一次, 只修改 style 属性
+
+```javascript
+var changeDiv = document.querySelector('#changeDiv');
+changeDiv.style.width = '100px';
+changeDiv.style.background = '#e4e4e4';
+changeDiv.style.height = '100px';
+
+```
+
+这样会操作 dom 3 次, 而我们起始只需要改变一次就够了.例如, 把这些属性合并成一个类
+
+```css
+div.changeDiv{
+   width: 100px,
+   background : '#e4e4e4',
+   height: 100px,
+}
+```
+
+2. 将需要多次重排的元素设置为绝对定位
+
+- 需要重排的元素都处于正常的文档流中, 那么如果这个元素不存在于文档流中,那么他的变化就不会影响到其他的元素的变化
+设置 `position`为 `absolute` 或者 `fixed`
+
+3. 尽量一次读写操作.  如果中间有对 dom 的不断修改.  则现在内存中构建, 在最后一次性写入
+
+```js
+
+// 方法 1
+function renderTable(list:DOMList){
+   const table = $('#table');
+   let rawHTML ='';
+   list.forEach((item)=>{
+      rowHTML += '<tr>';
+      rowHTML += '1';
+      rowHTML += '</tr>';
+      table.append($(rowHTML));
+      rowHTML = '';
+   })
+}
+
+// 方法 2
+function renderTable(list:DOMList){
+   const table = $('#table');
+   let  allHTML = '';
+   list.forEach((item)=>{
+      allHTML += '<tr>';
+      allHTML += '<td>'+ item.name + '</td>';
+      allHTML += '</tr>';
+   })
+   table.append($(allHTML));
+}
+```
+
+> 方法1与方法2相比, 方法 1 在每一次 loop 的时候,都回去操作 dom, 大大损耗了浏览器的性能, 每一次都有重排重绘产生
+> 方法 2 只有一次的开始和最后结束的各一次的 dom 操作, 因此也就只有一次的重排重绘
+
+4. 对要进行复杂处理的 dom 元素, display 属性为 none, 处理完成之后再显示
+
+- 因为 dom `display`为 none 的元素不会出现在渲染树中, 所以对其进行处理,并不会引起其他元素的重排, 所以当我们要对复杂元素处理的时候, 我们可以设置`display`为`none`, 然后在将其显示出来, 这样就只发生两次的重绘重排操作
+
+5. 将频繁会引起重排重绘的属性给给缓存至变量
 
 ## 浏览器的缓存
 
